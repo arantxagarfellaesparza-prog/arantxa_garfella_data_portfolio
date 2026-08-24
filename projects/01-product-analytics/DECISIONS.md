@@ -281,3 +281,87 @@ Remaining candidate, and the one closest to the business question: **new versus
 returning**, derived from session counts, which device contamination does not
 touch. A third would come from `traffic_source`, subject to auditing its
 `<Other>` rate first.
+
+---
+
+## 004 — `add_to_cart` is not a reliable funnel step; report two reconciled funnels
+
+**Date:** 2026-08-24
+
+### Context
+
+Decision 001 left open whether a within-session funnel understates conversion
+because purchases are prepared across sessions. Measured before building the
+funnel, as that entry required.
+
+Of 4,848 purchase sessions, 96.91% contain a `view_item` but only **58.75%
+contain an `add_to_cart`** — roughly 2,000 sessions purchasing with nothing added
+to a cart, which is not possible as behaviour.
+
+Splitting those 2,000:
+
+| | sessions | share |
+|---|---:|---:|
+| Cart in an earlier session (cross-session) | 252 | 12.6% |
+| Cart only *after* the purchase | 153 | 7.7% |
+| **Never added to cart at all, in 92 days** | **1,595** | **79.8%** |
+
+### What this does and does not invalidate
+
+**The session grain survives.** The dominant explanation is not cross-session
+preparation — that accounts for 12.6% — it is that `add_to_cart` does not fire on
+a large share of purchase paths. That defect is grain-independent: at identifier
+grain there would still be ~1,600 buyers who never cart. Decision 001 was
+stress-tested by a check designed to invalidate it, and held.
+
+What failed was an undeclared assumption: that `add_to_cart` is a reliable step.
+
+A second timing check settles the adjacent question. Across 11,104 sessions
+containing both, the gap from `begin_checkout` to `add_shipping_info` has a
+median under 5ms and p90 of 4.92s. No human completes a shipping form in five
+seconds, so the two fire programmatically. They are **one step**, and the reason
+matters: not that there is no friction between them, but that no user action
+occurs there, so friction is **unmeasurable**. It is a blind spot, not a clean
+pass.
+
+### Decision
+
+Report **two reconciled funnels**:
+
+1. **Instrumented path**, session grain:
+   `view_item → add_to_cart → begin_checkout → add_payment_info → purchase`,
+   with `begin_checkout` and `add_shipping_info` collapsed into one step.
+2. **Overall conversion**, against the 1.64% identifier-level baseline.
+
+The gap between them is reported and explained rather than hidden. `add_to_cart`
+is kept but explicitly marked non-exhaustive: no `add_to_cart → purchase` rate is
+computed as though every purchase passed through it.
+
+### Reason
+
+Dropping `add_to_cart` would discard the step where most e-commerce funnels lose
+people. Keeping it silently would produce a number that is wrong for ~40% of
+conversions. Reconciling against a baseline that already exists is precisely the
+job a baseline is for, and it costs about an hour.
+
+### Trade-off accepted
+
+The report carries two numbers where a reader would prefer one, and the
+difference has to be explained every time it is shown.
+
+### Instrumentation defects, accumulated
+
+| # | Defect | Effect |
+|---|---|---|
+| 1 | `begin_checkout` / `add_shipping_info` fire together (<5ms) | Blind spot; no measurable step between them |
+| 2 | `view_item_list`: 71 events, 44 identifiers | Not instrumented; excluded |
+| 3 | `add_to_cart` absent from ~80% of cartless purchase sessions | Covers only part of the real purchase path |
+| 4 | 3,038 identifiers with a session but no `session_start` | Open |
+
+Consequence for the business question: the funnel **endpoints** are sound —
+61,252 identifiers view an item, 4,419 purchase, 17.53% return — but its
+**interior** is not measurable. The project is therefore on track to answer
+*whether* the loss sits in the funnel or in retention, while being unable to say
+*which step* to fix. That is a narrower and more useful answer than "the data
+cannot tell", and it is not yet settled: it holds only if the funnel endpoints
+survive the reconciliation in 1.
