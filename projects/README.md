@@ -2,8 +2,10 @@
 
 One folder per project, self-contained, numbered in the order it was built.
 
-Nothing here yet — Phase 0 (foundation) is complete and Project 01 has not
-started. See [../docs/roadmap.md](../docs/roadmap.md) for what is coming.
+- **[01-product-analytics](01-product-analytics)** — product analytics and
+  experimentation on the public GA4 e-commerce sample. In progress.
+
+See [../docs/roadmap.md](../docs/roadmap.md) for what follows.
 
 ## Starting a new project
 
