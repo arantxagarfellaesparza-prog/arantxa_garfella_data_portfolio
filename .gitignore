@@ -1,6 +1,11 @@
 # --- Local scratch, never published ---------------------------------------
-# Career-planning notes and anything else meant for my eyes only.
+# Career-planning notes, learning logs, and anything else meant for my eyes only.
 .local/
+
+# Belt and braces: learning notes are private by decision, so even one created
+# outside .local/ by habit must not reach a public repository.
+LEARNING_LOG.md
+**/learning/
 
 # --- Secrets ---------------------------------------------------------------
 .env

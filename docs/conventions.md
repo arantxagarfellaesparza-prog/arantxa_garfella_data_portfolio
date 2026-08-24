@@ -41,7 +41,6 @@ this shape:
 projects/NN-name/
 ├── README.md          Case study
 ├── DECISIONS.md       Technical choices + trade-offs
-├── LEARNING_LOG.md    Concepts in my own words
 ├── data/              raw / interim / processed — gitignored
 ├── notebooks/         Exploration only, numbered: 01-eda.ipynb
 ├── src/               Reusable code: anything a notebook would import twice

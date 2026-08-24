@@ -1,5 +1,9 @@
 # Data Portfolio — Arantxa Garfella Esparza
 
+[![CI](https://github.com/arantxagarfellaesparza-prog/arantxa_garfella_data_portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/arantxagarfellaesparza-prog/arantxa_garfella_data_portfolio/actions/workflows/ci.yml)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Applied data science portfolio.
 
 Each project here starts from a business question, states its assumptions, picks
@@ -37,14 +41,12 @@ src/portfolio_core/  The few helpers shared by all projects (paths, seeds)
 docs/                Roadmap, conventions, and the toolchain register
 ```
 
-Every project carries three documents on purpose:
+Every project carries two documents on purpose:
 
 - **`README.md`** — the case study: problem, approach, result, limitations.
 - **`DECISIONS.md`** — technical choices with the alternatives considered and the
-  trade-off accepted. Written *before* the result is known, so it records
+  trade-off accepted. Written *when the decision is made*, so it records
   reasoning rather than justification after the fact.
-- **`LEARNING_LOG.md`** — concepts in my own words, and the ones I could not yet
-  explain without notes.
 
 ---
 
@@ -55,7 +57,7 @@ Requires [uv](https://docs.astral.sh/uv/) and Python 3.13 (uv installs it).
 ```bash
 git clone https://github.com/arantxagarfellaesparza-prog/arantxa_garfella_data_portfolio.git
 cd arantxa_garfella_data_portfolio
-uv sync --all-extras
+uv sync --locked --all-extras
 uv run pytest
 ```
 
@@ -79,13 +81,12 @@ You lose the lockfile, so exact dependency versions are no longer pinned.
 
 ---
 
-## A note on how this was built
+## How this was built
 
-I use Claude Code as a pair programmer for scaffolding, boilerplate and
-refactors. The problem framing, metric choices, validation strategy, model
-selection and interpretation are mine — that split is written down and enforced
-in [CLAUDE.md](CLAUDE.md), because a portfolio that demonstrates skills I do not
-have is worse than no portfolio.
+Claude Code is used as a pair programmer for scaffolding, boilerplate and
+refactors. Problem framing, metric choice, validation strategy, model selection
+and interpretation are mine. That boundary is written down explicitly in
+[CLAUDE.md](CLAUDE.md) rather than left implicit.
 
 ## Licence
 

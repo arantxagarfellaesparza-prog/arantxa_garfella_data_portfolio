@@ -16,7 +16,7 @@ Then, in order:
 1. Fill in the **Problem** section of `README.md`. Nothing else — the rest of the
    case study is written from real results, not predicted ones.
 2. Open `DECISIONS.md` with the first real choice (usually the dataset, or the
-   metric).
+   metric). Personal working notes stay outside the repository.
 3. Add the project's own dependencies to the root `pyproject.toml` as an
    optional group, and record each new tool in [../docs/toolchain.md](../docs/toolchain.md).
 
