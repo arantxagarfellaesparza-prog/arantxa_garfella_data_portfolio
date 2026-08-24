@@ -182,3 +182,102 @@ Discriminant: under (a) the rest of the `device` block stays stable for an
 identifier while browser varies; under (b) operating system and device category
 scramble alongside it, because whole events moved. Tested next, before any
 cohort work is built on top of the identifier.
+
+---
+
+## 003 — The contamination mechanism stays unresolved; the impact is bounded instead
+
+**Date:** 2026-08-24
+
+### Context
+
+Decision 002 measured device-block contamination at ~3.1% of identifiers and
+left two candidate mechanisms open, with opposite consequences for the retention
+curve:
+
+- **(b)** Whole events reassigned between identifiers → retention partly an
+  artefact.
+- **(c')** The `device` block swapped for another coherent profile, identifiers
+  intact → retention unaffected.
+
+Two observations narrowed the field. Individual events are internally
+consistent — Safari appears on iOS, Macintosh and unresolved `Web`, never on
+Android, and on Windows for exactly one identifier. But identifiers are not:
+among the 3,890 with more than one browser, 67.69% also carry more than one
+operating system against a background rate of 0.88%, a factor of 77.
+
+Together these rule out a *field-level* randomisation of `browser` alone. What
+moved were coherent blocks.
+
+### The discriminant that failed
+
+`geo.country` was chosen to separate (b) from (c'): under (b) the country travels
+with the event, under (c') it stays put.
+
+| group | users | multi-country % |
+|---|---:|---:|
+| single browser | 266,264 | 0.00 |
+| multi-browser | 3,890 | 0.00 |
+
+**Zero in both rows**, against non-zero background rates for OS (0.88%) and
+device category (0.62%). Real traffic over 92 days produces some multi-country
+identifiers through travel, VPNs, corporate proxies and mobile IP geolocation;
+exactly zero across 270,154 identifiers does not occur naturally.
+
+The reading is that `geo.country` was itself normalised to one value per
+identifier during obfuscation. A field forced constant returns the same 0% under
+either hypothesis, so it carries no discriminating power. **The test is
+inconclusive, and the 0% cannot be used as evidence that identifiers are
+intact.**
+
+### Decision
+
+**The mechanism is left unresolved and recorded as such.** No further budget is
+spent identifying it, because the decision it feeds does not depend on it.
+
+Instead the *impact* is bounded, which holds under both hypotheses:
+
+```
+retention observed (2+ sessions)        17.53%
+worst case under (b), all spurious      -3.10pp
+                                        ───────
+floor                                    14.43%
+```
+
+Under (c') the effect is zero by construction: a swapped device block does not
+create a session. Under (b) the worst case assumes every contaminated identifier
+owes its second session to a foreign event, which is deliberately pessimistic.
+
+The bound survives a factor-two error in the contamination estimate: at r = 6.2%
+the floor is still 11.3pp.
+
+### Reason
+
+Identifying the mechanism would change nothing about what this project can
+claim. The question that matters — *can identifier instability explain the
+retention signal?* — is answered by the magnitude, and the magnitude is
+answerable without the mechanism.
+
+### Trade-off accepted
+
+The project cannot state why the device block is contaminated, only that it is
+and by roughly how much. Any later work that depends on the mechanism rather
+than the magnitude must reopen this.
+
+### Dimensions burned for segmentation
+
+Two candidate segmentation dimensions are lost, for different reasons, and both
+are recorded before segments are chosen rather than after:
+
+| Dimension | Status | Why |
+|---|---|---|
+| Browser / device | **Contaminated**, ~3.1% | Reassigned per event |
+| `geo.country` | **Degenerate** | Forced constant per identifier |
+
+`geo` is the more dangerous of the two: it does not fail loudly. Cohorts split by
+country will come out clean, deterministic and entirely artefactual.
+
+Remaining candidate, and the one closest to the business question: **new versus
+returning**, derived from session counts, which device contamination does not
+touch. A third would come from `traffic_source`, subject to auditing its
+`<Other>` rate first.
