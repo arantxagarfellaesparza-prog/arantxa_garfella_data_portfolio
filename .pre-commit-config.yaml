@@ -1,0 +1,30 @@
+# Runs on `git commit`. The point is not style policing: each hook here exists
+# to stop a specific mistake that is painful to undo once it is in history.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # A committed dataset or model file is in the history forever, even if
+      # the next commit deletes it. This is the hook that matters most.
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: detect-private-key
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-toml
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.1
+    hooks:
+      # Notebook outputs make diffs unreadable and can embed rows of real data
+      # in a public repo. Strip them; the notebook source stays reviewable.
+      - id: nbstripout
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      - id: ruff-check
+        args: ["--fix"]
+      - id: ruff-format

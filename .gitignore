@@ -1,0 +1,64 @@
+# --- Local scratch, never published ---------------------------------------
+# Career-planning notes and anything else meant for my eyes only.
+.local/
+
+# --- Secrets ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+# --- Data ------------------------------------------------------------------
+# Data is reproduced by scripts, not stored in Git. Git is bad at large binary
+# blobs (every version is kept forever) and a public repo is the wrong place
+# for a dataset whose licence I have not personally checked.
+# `data/**` and not `data/`: excluding the directory itself makes Git skip it
+# entirely, and a later negation can never re-include anything inside it.
+data/**
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.xlsx
+*.db
+*.duckdb
+*.sqlite3
+# Small, hand-written fixtures ARE tracked: tests need them to be deterministic,
+# and each data/ folder keeps a README explaining how it is rebuilt.
+!**/tests/fixtures/**
+!data/README.md
+
+# --- Notebooks -------------------------------------------------------------
+.ipynb_checkpoints/
+# Note: outputs are stripped by the nbstripout pre-commit hook, not ignored,
+# so the .ipynb source itself stays reviewable in a diff.
+
+# --- Models / experiment tracking -----------------------------------------
+mlruns/
+mlartifacts/
+models/*.pkl
+models/*.joblib
+models/*.onnx
+*.h5
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# --- OS / editor -----------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/
