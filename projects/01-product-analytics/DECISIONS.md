@@ -89,3 +89,96 @@ Carried into M1/M3 rather than resolved here:
    simulation is therefore cleaner than reality on this axis — a limitation of
    the design, not evidence that the method is sound. Goes in the README
    limitations.
+
+---
+
+## 002 — The browser/ITP explanation for identifier instability is rejected
+
+**Date:** 2026-08-24
+
+### Context
+
+Decision 001 left identity stability as an object of analysis. The working
+hypothesis was that `user_pseudo_id` churn — driven by browsers with tracking
+prevention resetting `client_id` — distorts the retention curve, and that the
+distortion should therefore be visible as a browser-level difference.
+
+Baseline established first: **82.47% of identifiers have exactly one session**,
+and only 17.53% reappear in a second. That is the number the cohort curve must
+reconcile against.
+
+### What was tested
+
+Share of single-session identifiers, split by browser, over all 270,154
+identifiers.
+
+| Browser | users | single-session % |
+|---|---:|---:|
+| Chrome | 183,734 | 82.47 |
+| Safari | 64,857 | 82.37 |
+| Edge | 5,997 | 82.64 |
+| Firefox | 5,064 | 83.08 |
+| Android Webview | 3,513 | 83.15 |
+| `<Other>` | 6,989 | 82.24 |
+
+Safari − Chrome = **−0.10pp** (SE 0.17pp, z ≈ 0.6, p ≈ 0.57). The whole range
+across six browsers spans 0.91pp.
+
+### Decision
+
+**The browser/ITP mechanism is rejected as the explanation for the
+single-session rate**, and browser is dropped as a candidate segmentation
+dimension for the identity question.
+
+### Reason
+
+This is a *well-powered* null, not an absent result. At n = 183,734 and 64,857
+the minimum detectable difference at 80% power is ≈ 0.5pp; real identifier churn
+from tracking prevention would produce tens of percentage points. The capacity to
+detect a small effect existed and no effect is there — so absence of evidence is,
+here, evidence of absence.
+
+The observed difference is also in the opposite direction to the hypothesis,
+which removes any reading of "a real effect that is merely small".
+
+### Trade-off accepted
+
+Browser labels are themselves contaminated (see below), which attenuates any
+real browser effect toward zero. A contamination rate of ~3% cannot turn an
+effect of tens of percentage points into −0.10pp, so the rejection stands — but
+the caveat is stated wherever the result appears rather than dropped.
+
+### Measured contamination of the device dimension
+
+Between 1.00% and 2.92% of identifiers appear under more than one browser, which
+is not possible behaviour: `client_id` lives in a first-party cookie that one
+browser cannot read from another.
+
+The rate is lowest for Chrome and roughly equal for every other browser, which is
+the signature of labels reassigned at random from the marginal distribution: a
+reassignment is invisible when it lands on the browser the identifier already
+had. A one-parameter model, `pct_multi_browser(b) ≈ r × (1 − share(b))`,
+calibrated on Chrome alone gives **r ≈ 3.1%** and predicts Safari — the largest
+held-out group — at 2.38% against 2.27% observed.
+
+Small browsers run ~0.4pp below prediction, plausibly because fewer events mean
+fewer opportunities to catch a reassignment. Recorded as an unexplained residual
+rather than smoothed over.
+
+This turns Google's general warning about limited internal consistency into a
+measured figure for this dataset.
+
+### Open — decides whether Q1 survives
+
+The multi-browser evidence does **not** identify *what* was contaminated, and the
+two candidates have opposite consequences:
+
+- **(a) The browser field was randomised on some events**, identifiers intact →
+  retention is real, only device segmentation is unreliable.
+- **(b) Events were reassigned between identifiers**, browser intact → the
+  retention curve is an artefact and the research question changes.
+
+Discriminant: under (a) the rest of the `device` block stays stable for an
+identifier while browser varies; under (b) operating system and device category
+scramble alongside it, because whole events moved. Tested next, before any
+cohort work is built on top of the identifier.
