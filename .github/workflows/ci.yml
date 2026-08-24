@@ -19,11 +19,12 @@ jobs:
       - name: Set up Python
         run: uv python install
 
-      # --frozen fails the build if uv.lock is out of date with pyproject.toml.
-      # That is the point: CI proves the lockfile is the real source of truth,
-      # so "works on my machine" cannot go unnoticed.
+      # --locked, not --frozen. --frozen installs whatever the lockfile says and
+      # never looks at pyproject.toml, so a dependency added by hand is silently
+      # not installed and CI still passes. --locked resolves and fails if the
+      # lockfile no longer matches pyproject.toml, which is the check we want.
       - name: Install dependencies
-        run: uv sync --frozen --all-extras
+        run: uv sync --locked --all-extras
 
       - name: Lint
         run: uv run ruff check .

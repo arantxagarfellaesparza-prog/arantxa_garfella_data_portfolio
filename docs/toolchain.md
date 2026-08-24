@@ -92,8 +92,13 @@ would otherwise forget) transfers to CI.
 its tests.
 
 **Why here** It converts "works on my machine" from an assumption into a check.
-`uv sync --frozen` additionally fails if the lockfile drifts from
+`uv sync --locked` additionally fails if the lockfile drifts from
 `pyproject.toml`, so the reproducibility claim is enforced rather than trusted.
+
+Note the flag: `--frozen` looks like the strict one and is not. It installs
+exactly what `uv.lock` contains and never reads `pyproject.toml`, so a
+dependency added by hand is quietly missing while CI stays green. `--locked`
+re-resolves and fails on drift. Verified, not assumed.
 
 **Simpler alternative** Running the commands locally before pushing.
 
