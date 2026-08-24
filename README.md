@@ -1,6 +1,6 @@
 # Data Portfolio — Arantxa Garfella Esparza
 
-Applied data science, built to be defended in an interview rather than skimmed.
+Applied data science portfolio.
 
 Each project here starts from a business question, states its assumptions, picks
 metrics on purpose, and ends with what the result would actually let someone
