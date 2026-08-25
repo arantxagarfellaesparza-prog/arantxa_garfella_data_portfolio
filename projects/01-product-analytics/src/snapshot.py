@@ -21,7 +21,7 @@ import duckdb
 # Mirrors the SELECT list of extract_sessions.sql, in order. If that query
 # changes, this changes with it in the same commit.
 SESSION_SCHEMA: dict[str, str] = {
-    "user_key": "VARCHAR",
+    "user_pseudo_id": "VARCHAR",
     "ga_session_id": "BIGINT",
     "session_date": "DATE",
     "session_start_us": "BIGINT",
@@ -153,15 +153,16 @@ def measure(
 
     counts = con.execute(f"""
         SELECT
-          count(DISTINCT user_key),
+          count(DISTINCT user_pseudo_id),
           count(*) FILTER (WHERE purchased),
-          count(DISTINCT user_key) FILTER (WHERE purchased)
+          count(DISTINCT user_pseudo_id) FILTER (WHERE purchased)
         FROM {table}
     """).fetchone()
 
     share = con.execute(f"""
         WITH per_user AS (
-          SELECT user_key, count(*) AS sessions FROM {table} GROUP BY user_key
+          SELECT user_pseudo_id, count(*) AS sessions
+          FROM {table} GROUP BY user_pseudo_id
         )
         SELECT count(*) FILTER (WHERE sessions = 1) / count(*) FROM per_user
     """).fetchone()[0]

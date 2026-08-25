@@ -24,11 +24,16 @@ Expected: 270,154 identifiers, ~355k rows.
 
 Both were found the hard way, and both fail silently.
 
-**Not Sheets.** A GA4 `user_pseudo_id` is 17 digits and a spreadsheet keeps 15
-significant figures, so a round trip through Sheets zeroes the last two digits of
-every identifier and merges distinct users. The extract now emits `user_key`
-with a leading `u` so the column cannot be read as a number anywhere, but the
-export route should still avoid spreadsheets.
+**Not Sheets.** A `user_pseudo_id` looks like `1005317.0661766703`. Opened in a
+spreadsheet under a European locale, the dot reads as a thousands separator, the
+value becomes the 17-digit integer 10053170661766703, and a spreadsheet keeps 15
+significant figures — so the last two digits of **every** identifier are zeroed
+and distinct users merge. The first export of this snapshot had 100% of its
+identifiers ending in `00`.
+
+The column is exported untransformed on purpose: prefixing it would make the
+committed query and the pinned snapshot different artefacts. The defence is this
+route, and the contract check below.
 
 **Not the local download.** It caps at 10MB against a file of roughly 48MB, and
 the truncation is not announced. A short export hashes perfectly well and loads
