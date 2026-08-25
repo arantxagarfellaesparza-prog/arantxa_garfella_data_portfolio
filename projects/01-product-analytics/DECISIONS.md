@@ -365,3 +365,96 @@ Consequence for the business question: the funnel **endpoints** are sound —
 *which step* to fix. That is a narrower and more useful answer than "the data
 cannot tell", and it is not yet settled: it holds only if the funnel endpoints
 survive the reconciliation in 1.
+
+---
+
+## 005 — Compare the levers on incremental purchases, and drop segmentation to one dimension
+
+**Date:** 2026-08-25
+
+### Context
+
+The funnel answered less than hoped and more than expected. Three candidate
+levers came out of it, each with a different denominator and therefore not
+comparable as stated:
+
+| | |
+|---|---|
+| 78.61% of sessions never view a product | |
+| 93.71% of sessions that view a product do not buy | |
+| 82.47% of identifiers never return | |
+
+Read as raw leak rates, retention looks like the largest problem in the
+business. That reading is what this entry exists to test.
+
+### Scope change
+
+Added: a lever comparison on incremental purchases (~2h), which was not in the
+original plan. Removed to pay for it: segmentation drops from two or three
+pre-registered dimensions to **one — new versus returning**, derived from
+session counts and untouched by the device contamination in DECISIONS 002.
+
+Without the comparison the project ends at "the levers cannot be compared",
+which is not a usable answer for someone with one slot in a quarter.
+
+### Decision
+
+Convert all three to the unit the business counts, using the identity
+
+```
+purchases = sessions x P(view) x P(buy | view)
+```
+
+which reproduces the observed 4,848 purchase sessions exactly. Retention is
+modelled separately because it changes the number of sessions rather than a
+conditional rate.
+
+Report **two shocks**, not one:
+
+| lever | base | +1pp | +10% relative | uplift |
+|---|---:|---:|---:|---:|
+| discovery | 21.39% | 227 | **485** | 10.0% |
+| conversion | 6.29% | 770 | **485** | 10.0% |
+| retention | 17.53% | 141 | 246 *(upper bound)* | 5.1% |
+
+### Findings
+
+**Discovery and conversion are exactly equivalent under a relative shock**, and
+necessarily so: they are multiplicative factors of the same product, so scaling
+either by 1.10 scales purchases by 1.10. Arithmetic cannot rank them. Only
+feasibility can, and feasibility is not in this data.
+
+**The +1pp column ranks conversion 3.4x above discovery, and that ordering is an
+artefact of the base rates** — one point on 6.29% is a 15.9% improvement, one
+point on 21.39% is 4.7%. Neither shock is universally right: the correct one
+depends on how the expected effect of an intervention is expressed. Absent any
+historical effect sizes, the relative shock leads and the absolute is reported
+as sensitivity.
+
+**Retention is the smallest of the three, at roughly half the others**, and its
+figure is a ceiling rather than an estimate. The raw 82.47% invited the opposite
+conclusion; the difference is between reading leak rates and reading marginal
+impact on the outcome.
+
+**The original question offered the wrong choice.** It asked checkout or repeat
+purchase. `conversion` is approximately "fix checkout"; `discovery` — getting
+visitors to a product page at all — ties with it and was not on the list.
+
+### Trade-off accepted
+
+Segmentation is now a single dimension, so this project cannot say whether any
+lever behaves differently across device, channel or country. Two of those three
+were already unusable (DECISIONS 003); the loss is real only for channel.
+
+The lever model is deliberately simple: it assumes the levers are independent
+and that improving one does not change the others. Over a shock of this size
+that is reasonable; it would not survive being extrapolated to a large change.
+
+### What the analysis will not claim
+
+- Which step inside the funnel to fix. The interior is not measurable
+  (DECISIONS 004), and the one defensible interior figure — 43.4% of sessions
+  that begin checkout go on to purchase — says only that checkout completion is
+  mediocre rather than broken.
+- Which of discovery and conversion to choose. Supplying the derivative is the
+  analysis; supplying the achievability is the roadmap owner's.
