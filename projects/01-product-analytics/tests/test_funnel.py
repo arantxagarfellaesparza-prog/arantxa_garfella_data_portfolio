@@ -114,3 +114,22 @@ def test_nesting_violations_are_counted(con) -> None:
     assert got["purchased without add_to_cart"] == 1  # session 'c'
     assert got["purchased without begin_checkout"] == 0
     assert got["checkout without add_to_cart"] == 1  # session 'c'
+
+
+def test_segments_split_first_from_return_visits(con) -> None:
+    df = run("segments", con).set_index("segment")
+
+    # Seven identifiers, so seven first visits; 'a' is the only one with a
+    # second, so one return visit. They must add back to the eight sessions.
+    assert df.loc["1_first_visit", "sessions"] == 7
+    assert df.loc["2_return_visit", "sessions"] == 1
+    assert df["sessions"].sum() == 8
+
+
+def test_segments_rank_sessions_by_time_not_by_id(con) -> None:
+    # 'a' bought in its earlier session, so the purchase belongs to the first
+    # visit. Getting the ordering backwards would silently move every purchase
+    # into the wrong segment and invert the headline result.
+    df = run("segments", con).set_index("segment")
+    assert df.loc["1_first_visit", "pct_purchasing"] > 0
+    assert df.loc["2_return_visit", "pct_purchasing"] == 0
