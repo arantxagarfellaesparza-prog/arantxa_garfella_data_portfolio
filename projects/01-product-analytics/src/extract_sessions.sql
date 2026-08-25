@@ -37,7 +37,11 @@ WITH ev AS (
 )
 
 SELECT
-  user_pseudo_id,
+  -- Prefixed so it can never be parsed as a number. GA4 pseudo IDs are 17 digits;
+  -- a spreadsheet stores 15 significant figures and silently zeroes the last two,
+  -- which merges distinct identifiers. A leading letter makes the column text
+  -- everywhere and costs nothing.
+  CONCAT('u', user_pseudo_id)          AS user_key,
   ga_session_id,
   MIN(event_date)                              AS session_date,
   MIN(event_timestamp)                         AS session_start_us,
@@ -68,4 +72,4 @@ SELECT
 
 FROM ev
 WHERE ga_session_id IS NOT NULL
-GROUP BY user_pseudo_id, ga_session_id
+GROUP BY user_key, ga_session_id

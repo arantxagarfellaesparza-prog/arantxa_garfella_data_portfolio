@@ -21,7 +21,7 @@ import duckdb
 # Mirrors the SELECT list of extract_sessions.sql, in order. If that query
 # changes, this changes with it in the same commit.
 SESSION_SCHEMA: dict[str, str] = {
-    "user_pseudo_id": "VARCHAR",
+    "user_key": "VARCHAR",
     "ga_session_id": "BIGINT",
     "session_date": "DATE",
     "session_start_us": "BIGINT",
@@ -122,3 +122,133 @@ def load(
         [str(snapshot)],
     )
     return con
+
+
+# --- Data contract ---------------------------------------------------------
+# A checksum pins a file; it does not say the file is right. A truncated or
+# mangled export hashes perfectly well and then quietly changes every number
+# downstream. These are aggregates measured against the full source in BigQuery
+# before exporting, so the snapshot has something to be wrong against.
+SNAPSHOT_CONTRACT: dict[str, int] = {
+    "distinct_users": 270_154,
+    "purchase_sessions": 4_848,
+    "purchasing_users": 4_419,
+}
+
+# Share of identifiers with exactly one session. Held apart from the counts
+# because it is compared with a tolerance rather than exactly.
+SINGLE_SESSION_SHARE = 0.8247
+
+
+class ContractViolation(RuntimeError):
+    """The snapshot loaded, and it is not the dataset the analysis expects."""
+
+
+def measure(
+    con: duckdb.DuckDBPyConnection, *, table: str = "sessions"
+) -> dict[str, float]:
+    """Recompute the contract aggregates from a loaded snapshot."""
+    if not table.isidentifier():
+        raise ValueError(f"table must be a plain identifier, got {table!r}")
+
+    counts = con.execute(f"""
+        SELECT
+          count(DISTINCT user_key),
+          count(*) FILTER (WHERE purchased),
+          count(DISTINCT user_key) FILTER (WHERE purchased)
+        FROM {table}
+    """).fetchone()
+
+    share = con.execute(f"""
+        WITH per_user AS (
+          SELECT user_key, count(*) AS sessions FROM {table} GROUP BY user_key
+        )
+        SELECT count(*) FILTER (WHERE sessions = 1) / count(*) FROM per_user
+    """).fetchone()[0]
+
+    return {
+        "distinct_users": counts[0],
+        "purchase_sessions": counts[1],
+        "purchasing_users": counts[2],
+        "single_session_share": share,
+    }
+
+
+def validate(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    table: str = "sessions",
+    contract: dict[str, int] | None = None,
+    single_session_share: float | None = None,
+    tolerance: float = 0.001,
+) -> dict[str, float]:
+    """Raise unless the snapshot reproduces the aggregates measured at source."""
+    contract = SNAPSHOT_CONTRACT if contract is None else contract
+    expected_share = (
+        SINGLE_SESSION_SHARE if single_session_share is None else single_session_share
+    )
+
+    actual = measure(con, table=table)
+    problems = [
+        f"  {name}: expected {want:,}, got {actual[name]:,.0f}"
+        for name, want in contract.items()
+        if actual[name] != want
+    ]
+
+    if abs(actual["single_session_share"] - expected_share) > tolerance:
+        problems.append(
+            f"  single_session_share: expected {expected_share:.4f} "
+            f"(±{tolerance}), got {actual['single_session_share']:.4f}"
+        )
+
+    if problems:
+        raise ContractViolation(
+            "Snapshot does not match the aggregates measured at source:\n"
+            + "\n".join(problems)
+            + "\nA truncated or mangled export produces exactly this. Re-export "
+            "rather than adjusting the contract."
+        )
+    return actual
+
+
+def _main() -> int:
+    """Validate a snapshot, and pin it only once it has passed.
+
+    The order is the point: pinning first would record the checksum of whatever
+    happened to download, which is how a truncated export becomes the official
+    dataset.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("snapshot", type=Path)
+    parser.add_argument(
+        "--pin",
+        action="store_true",
+        help="write the .sha256 file after validation passes",
+    )
+    args = parser.parse_args()
+
+    con = load(args.snapshot, check=False)
+    try:
+        measured = validate(con)
+    except ContractViolation as exc:
+        print(exc)
+        return 1
+
+    for name, value in measured.items():
+        print(
+            f"  {name:>22}: {value:,.4f}"
+            if isinstance(value, float)
+            else f"  {name:>22}: {value:,}"
+        )
+
+    if args.pin:
+        print(f"\nPinned: {write_checksum(args.snapshot)}")
+    else:
+        print("\nContract passed. Re-run with --pin to record the checksum.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())
