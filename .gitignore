@@ -34,6 +34,9 @@ data/**
 # and each data/ folder keeps a README explaining how it is rebuilt.
 !**/tests/fixtures/**
 !data/README.md
+# The checksum file is the pin. It is tiny, it is not data, and without it in
+# Git there is nothing to verify a re-downloaded snapshot against.
+!data/**/*.sha256
 
 # --- Notebooks -------------------------------------------------------------
 .ipynb_checkpoints/

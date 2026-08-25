@@ -20,6 +20,11 @@ dev = [
     "ruff>=0.6",
     "pre-commit>=3.7",
 ]
+# Per-project groups: a change of mind in one project cannot break the others.
+product-analytics = [
+    "duckdb>=1.1",
+    "pandas>=2.2",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -32,6 +37,9 @@ packages = ["src/portfolio_core"]
 [tool.pytest.ini_options]
 testpaths = ["tests", "projects"]
 python_files = ["test_*.py"]
+# Each project's src/ is importable by its own tests without being packaged:
+# these are analyses, not libraries anyone installs.
+pythonpath = ["src", "projects/01-product-analytics/src"]
 addopts = "-q --strict-markers"
 
 # --- Lint / format ---------------------------------------------------------

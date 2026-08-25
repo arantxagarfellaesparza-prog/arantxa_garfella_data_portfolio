@@ -108,13 +108,57 @@ re-resolves and fails on drift. Verified, not assumed.
 
 ---
 
+## DuckDB — local analytical database
+
+**Problem** Run analytical SQL over the pinned snapshot on a laptop, without a
+server and without a cloud bill.
+
+**Why here** The exploration happens in BigQuery because that is where the source
+lives, but BigQuery is not reproducible for a reader: it needs a Google account,
+a project, and a dataset that Google could revise. Pinning an export and querying
+it locally makes `git clone && run` true. DuckDB reads CSV and Parquet directly,
+so there is no load step to get wrong.
+
+**Simpler alternative** pandas alone. Workable, but the point of this project is
+demonstrating analytical SQL — window functions, cohort queries, sessionisation —
+and rewriting those as DataFrame operations would hide exactly the skill on
+display. A local PostgreSQL would also work and costs a server, a schema
+migration and a load step for no analytical gain.
+
+**Complexity added** One dependency, no server, no configuration.
+
+**Worth learning** Yes. DuckDB has become the default for local analytical work,
+and the SQL is standard enough that the knowledge transfers to any warehouse.
+
+---
+
+## pandas — dataframes at the analysis boundary
+
+**Problem** Move query results into plotting, statistical tests and the
+experiment layer.
+
+**Why here** scipy, statsmodels and matplotlib all speak DataFrame. The division
+of labour is deliberate: SQL does the set-based work against the data, pandas
+handles what comes after the aggregation.
+
+**Simpler alternative** DuckDB's own relational API, or plain Python. Neither
+connects cleanly to the statistical libraries this project needs.
+
+**Complexity added** A large dependency, and a standing temptation to do in
+pandas what SQL should do. The rule for this project: aggregation happens in SQL.
+
+**Worth learning** Yes, and it is already partly known — the gap this portfolio
+addresses is the SQL side.
+
+---
+
 ## Deliberately *not* here (yet)
 
 Added only when a project actually needs it, with an entry above:
 
 | Tool | Waiting for |
 |---|---|
-| pandas / Polars, DuckDB | Project 01 |
+| Polars | Not planned — pandas covers this project |
 | scikit-learn, XGBoost/LightGBM, SHAP | Project 02 |
 | statsmodels | Projects 01 and 03 |
 | MLflow, FastAPI, Docker | Project 04 |
