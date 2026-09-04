@@ -152,6 +152,27 @@ addresses is the SQL side.
 
 ---
 
+## scipy — statistical tests
+
+**Problem** Chi-square tests for sample ratio mismatch and covariate balance,
+normal quantiles for power and confidence intervals.
+
+**Why here** The experiment's validity checks are hypothesis tests, and the
+alternative is implementing the distributions by hand — which means writing and
+testing numerical code that is not the point of the project and is easy to get
+subtly wrong.
+
+**Simpler alternative** Hard-coding critical values for the specific tests used.
+Workable for a fixed alpha, and it silently stops being right the moment the
+design changes.
+
+**Complexity added** One well-established dependency.
+
+**Worth learning** The tests, yes — they are the substance of the experimentation
+block. The library is incidental.
+
+---
+
 ## Deliberately *not* here (yet)
 
 Added only when a project actually needs it, with an entry above:
@@ -160,7 +181,7 @@ Added only when a project actually needs it, with an entry above:
 |---|---|
 | Polars | Not planned — pandas covers this project |
 | scikit-learn, XGBoost/LightGBM, SHAP | Project 02 |
-| statsmodels | Projects 01 and 03 |
+| statsmodels | Project 03; project 01 has not needed it beyond scipy |
 | MLflow, FastAPI, Docker | Project 04 |
 | Anthropic/OpenAI SDK, Pydantic | Project 05 |
 
