@@ -88,8 +88,15 @@ def standardised_effect(
     z = diff / se
     half = stats.norm.ppf(1 - alpha / 2) * se
 
+    # Weighted to the population rather than to either arm, so these two are
+    # comparable with each other and with the naive pair.
     control_rate = float((per_segment["weight"] * per_segment["rate_control"]).sum())
+    treatment_rate = float(
+        (per_segment["weight"] * per_segment["rate_treatment"]).sum()
+    )
     return {
+        "rate_treatment": treatment_rate,
+        "rate_control": control_rate,
         "absolute_diff": diff,
         "relative_lift": diff / control_rate if control_rate else np.nan,
         "se": se,

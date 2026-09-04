@@ -552,3 +552,75 @@ discriminates between desktop and mobile and leaves tablet alone.
 An experiment that may well carry a real effect is set aside on the strength of a
 0.42pp deviation. That is the intended cost of the rule: a threshold that bends
 when the effect looks promising is not a threshold.
+
+---
+
+## 007 — Reveal: what the experiment was, and what it found
+
+**Date:** 2026-09-04
+
+Generative parameters, hidden until this point and now committed at
+[`src/experiment-params.json`](src/experiment-params.json):
+
+```
+assign_prob:  desktop 0.52   mobile 0.48   tablet 0.50
+lift:         desktop  0%    mobile +20%   tablet   0%
+```
+
+Estimates were made and written down before this file was opened.
+
+### Scoring the blind analysis
+
+| Claim made blind | Truth |
+|---|---|
+| SRM present | Correct — assignment was skewed by design |
+| Imbalance is systematic, not noise, because tablet did not move | Correct — tablet's assignment probability was exactly 0.50 |
+| Heterogeneity, stronger on mobile | Correct in direction |
+| Heterogeneity **not established** (interaction p = 0.25) | Methodologically correct, factually a miss: the effect was real |
+| Tablet's −36.98% is unstable, not a finding | Correct — its true effect was exactly zero |
+| Overall effect not significant | Correct |
+| Naive lift ≈ +8% | The true population-weighted lift is **+8.2%**; the experiment measured +3.26% |
+
+### Realised power against the true effect
+
+| | true effect | expected z | observed z | power |
+|---|---:|---:|---:|---:|
+| desktop | 0% | 0.00 | 0.33 | 5.0% |
+| mobile | +20% | 3.56 | 1.71 | **94.5%** |
+| tablet | 0% | 0.00 | −1.81 | 5.0% |
+| interaction | 20 vs 0 | 2.82 | 1.15 | **80.6%** |
+
+### What this establishes
+
+**A 94.5%-powered test missed.** The mobile effect was real, large and
+well-powered, and the realised draw landed 1.85 standard errors below its
+expectation — roughly a one-in-thirty outcome. Power is a probability, not a
+promise, and this is what the unlucky tail looks like from the inside.
+
+**The interaction test is structurally weaker than the effects it compares.** At
+80.6% it had fourteen points less power than the mobile main effect, because a
+difference of differences carries both standard errors. That is why claims of
+heterogeneity fail in both directions so often: real heterogeneity goes
+undetected, and subgroup noise gets promoted.
+
+**The false signal nearly fired while the real one did not.** Tablet, whose true
+effect was zero, reached p = 0.070 on 2,871 treated identifiers; mobile, with a
++20% effect, reached only p = 0.088. Across three subgroups, the chance of at
+least one reaching p < 0.10 under a complete null is 27%.
+
+**Correct method produced the wrong answer, and was still correct.** Declining to
+claim heterogeneity at p = 0.25 was the right call and it was, this time, a false
+negative. Claiming it from a subgroup p of 0.088 would have been right here and
+wrong more often than not. A method does not promise the right answer; it
+promises an error rate that can be stated in advance.
+
+### What the project can therefore say about Q3
+
+It can say that an apparently winning experiment is not trustworthy on the
+strength of its estimate, and give the order of operations that establishes
+this: calibrate the estimator, gate on assignment, quantify what imbalance costs,
+and only then look at the effect.
+
+It cannot say that this particular treatment works. The experiment failed its
+gate, and even setting that aside, it was one unlucky draw away from the
+opposite conclusion.

@@ -31,7 +31,11 @@ import duckdb
 import numpy as np
 import pandas as pd
 
-PARAMS_PATH = Path(__file__).parents[3] / ".local" / "experiment-params.json"
+# Committed at the reveal (DECISIONS 007). While the experiment was blinded this
+# pointed outside the repository, so the estimate could not be made with the
+# answer in view; now it lives here, because a result nobody can regenerate is
+# not a result.
+PARAMS_PATH = Path(__file__).parent / "experiment-params.json"
 OUTPUT_PATH = Path(__file__).parents[1] / "data" / "interim" / "experiment.csv"
 
 # Randomisation is per identifier (DECISIONS 001). The outcome is aggregated to

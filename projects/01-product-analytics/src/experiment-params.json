@@ -1,0 +1,14 @@
+{
+  "seed": 20260825,
+  "window_days": 7,
+  "assign_prob": {
+    "desktop": 0.52,
+    "mobile": 0.48,
+    "tablet": 0.5
+  },
+  "lift": {
+    "desktop": 0.0,
+    "mobile": 0.2,
+    "tablet": 0.0
+  }
+}
