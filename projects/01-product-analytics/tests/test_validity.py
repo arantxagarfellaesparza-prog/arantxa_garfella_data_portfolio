@@ -96,3 +96,34 @@ def test_aa_p_values_are_uniform_under_the_null() -> None:
     # Kolmogorov-Smirnov against Uniform(0,1): non-uniform p-values mean the
     # test is miscalibrated even if its rejection rate happens to look right.
     assert stats.kstest(got["p_value"], "uniform").pvalue > 0.01
+
+
+def test_compositional_bias_is_zero_when_the_arms_match() -> None:
+    from validity import compositional_bias
+
+    frame = pd.DataFrame(
+        {
+            "arm": ["treatment"] * 100 + ["control"] * 100,
+            "device_category": (["desktop"] * 60 + ["mobile"] * 40) * 2,
+        }
+    )
+    got = compositional_bias(frame, {"desktop": 0.013, "mobile": 0.014})
+    assert got["absolute_bias"] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_compositional_bias_points_against_the_arm_holding_the_weaker_segment() -> None:
+    from validity import compositional_bias
+
+    # Treatment is 80% desktop, control 40%. Desktop converts worse, so the
+    # naive difference is dragged down before any treatment effect exists.
+    frame = pd.DataFrame(
+        {
+            "arm": ["treatment"] * 100 + ["control"] * 100,
+            "device_category": (["desktop"] * 80 + ["mobile"] * 20)
+            + (["desktop"] * 40 + ["mobile"] * 60),
+        }
+    )
+    got = compositional_bias(frame, {"desktop": 0.010, "mobile": 0.020})
+    assert got["absolute_bias"] < 0
+    # 0.8*.01+0.2*.02 = 0.012 against 0.4*.01+0.6*.02 = 0.016
+    assert got["absolute_bias"] == pytest.approx(-0.004)

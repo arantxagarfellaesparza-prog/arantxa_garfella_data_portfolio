@@ -182,3 +182,37 @@ def aa_simulation(
             }
         )
     return pd.DataFrame(rows)
+
+
+def compositional_bias(
+    frame: pd.DataFrame,
+    base_rates: dict[str, float],
+    *,
+    covariate: str = "device_category",
+    arm_column: str = "arm",
+) -> dict[str, float]:
+    """How much does the covariate imbalance move the naive estimate?
+
+    Reweights each arm's known base rates by that arm's actual composition, with
+    no treatment effect assumed. Whatever difference survives is what the
+    imbalance alone would produce.
+
+    Detecting an imbalance and quantifying it are different jobs. A significant
+    imbalance can still be too small to matter for the estimate -- and if it is,
+    that is worth knowing, because it means the danger of the mismatch lies
+    somewhere other than in this arithmetic.
+    """
+    shares = pd.crosstab(frame[arm_column], frame[covariate], normalize="index")
+    expected = {
+        arm: sum(shares.loc[arm, level] * base_rates[level] for level in shares.columns)
+        for arm in shares.index
+    }
+
+    bias = expected["treatment"] - expected["control"]
+    return {
+        "expected_rate_treatment_no_effect": expected["treatment"],
+        "expected_rate_control_no_effect": expected["control"],
+        "absolute_bias": bias,
+        "absolute_bias_pp": 100 * bias,
+        "relative_bias_pct": 100 * bias / expected["control"],
+    }

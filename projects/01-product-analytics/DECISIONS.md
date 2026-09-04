@@ -458,3 +458,97 @@ that is reasonable; it would not survive being extrapolated to a large change.
   mediocre rather than broken.
 - Which of discovery and conversion to choose. Supplying the derivative is the
   analysis; supplying the achievability is the roadmap owner's.
+
+---
+
+## 006 — Validity verdict: hard stop on causal interpretation
+
+**Date:** 2026-09-04
+
+### Pre-registered protocol
+
+Fixed before any number from the experiment was looked at, and recorded in the
+docstring of `src/validity.py`:
+
+| Check | Role | Threshold |
+|---|---|---|
+| SRM, chi-square against 50/50 | **Hard gate** | α = 0.025 |
+| Balance on `device_category`, chi-square + effect size | Diagnostic, not a gate | α = 0.025 |
+| A/A by re-randomisation with zero effect, repeated | Calibration of the estimator | rejection ≈ α, coverage ≈ 1−α |
+
+Order: A/A → SRM → balance → written verdict → **only then** effect.
+
+α = 0.025 rather than 0.05, accepting slightly less power to detect small
+invalidity in exchange for a lower chance of discarding a healthy experiment. At
+this sample size the choice moves the detection threshold from 0.280pp to
+0.308pp, so it is close to inconsequential either way.
+
+**No multiplicity correction**, deliberately. The checks are hierarchical and do
+different jobs: SRM is the gate, balance is diagnostic, and the A/A is one
+calibration check evaluated on the distribution of 1,000 replications rather
+than as 1,000 competing hypotheses.
+
+### Results
+
+**A/A — pass.** Over 1,000 replications: rejection rate 0.0580 against a nominal
+0.05, interval coverage 0.9420 against 0.95, mean difference +0.000000, median
+p-value 0.5218. The rejection rate sits 1.2 standard errors from nominal, which
+is noise. Coverage runs 0.8pp low, not significantly, but in the direction theory
+predicts for a Wald interval at a base rate near 1.3% — noted as a limitation
+rather than a failure.
+
+**SRM — fail.** 126,399 treatment against 124,312 control, a share of 50.4162%
+and a deviation of +0.4162pp. χ² = 17.373, p = 3.07e-05, against a threshold of
+0.025.
+
+**Balance — fail.** χ² = 381.016, p = 1.83e-83, Cramér's V = 0.039. Desktop is
+over-represented in treatment by 3.75pp, mobile under-represented by 3.80pp, and
+**tablet is untouched at +0.06pp**. Noise does not produce that shape: two
+categories moving four points in opposite directions while the third stays put
+points to a systematic or selective mechanism, though its cause is not
+identified here.
+
+### Quantifying the imbalance
+
+Reweighting each arm's known base rates by that arm's actual composition, with no
+treatment effect assumed:
+
+```
+compositional bias   -0.199% relative
+experiment MDE       +9.74%  relative
+```
+
+The direction is against treatment — treatment carries more desktop, whose base
+rate (1.316%) is below mobile's (1.383%). The magnitude is a fiftieth of the
+smallest effect this experiment could detect.
+
+### Decision
+
+**Hard stop on causal interpretation.** The effect may be computed for
+diagnosis; it is not read causally and does not inform a product decision.
+
+### Reason
+
+The −0.199% quantifies only the bias explained by the *observed* imbalance in
+`device_category`. It does not bound the total bias produced by whatever
+mechanism caused the SRM.
+
+The SRM says the realised sample does not follow the 50/50 process the design
+specified. It does not say why. Until the cause is identified and shown to be
+ignorable with respect to the outcome, the fact that the measurable component is
+trivial licenses nothing about the rest: an imbalance on an unobserved covariate
+correlated with purchase would be invisible to every check run here.
+
+That is the whole reason a sample ratio mismatch is treated as a canary rather
+than as a bias to be corrected. If the footprint of the fault were knowable, it
+could simply be adjusted for. It is not, so it cannot.
+
+Balance failing as well does not change the verdict — under the pre-registered
+rule it is diagnostic — but it does sharpen the diagnosis: the fault
+discriminates between desktop and mobile and leaves tablet alone.
+
+### Trade-off accepted
+
+An experiment that may well carry a real effect is set aside on the strength of a
+0.42pp deviation. That is the intended cost of the rule: a threshold that bends
+when the effect looks promising is not a threshold.
