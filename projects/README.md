@@ -3,7 +3,7 @@
 One folder per project, self-contained, numbered in the order it was built.
 
 - **[01-product-analytics](01-product-analytics)** — product analytics and
-  experimentation on the public GA4 e-commerce sample. In progress.
+  experimentation on the public GA4 e-commerce sample. Complete.
 
 See [../docs/roadmap.md](../docs/roadmap.md) for what follows.
 

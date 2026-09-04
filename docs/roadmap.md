@@ -20,7 +20,7 @@ every project needs: path resolution and reproducible seeding.
 
 ---
 
-## 01 — Product Analytics & Experimentation
+## 01 — Product Analytics & Experimentation ✅
 
 > Where does the funnel leak, which behaviours predict retention, and how would
 > we design a test for a fix?
