@@ -161,6 +161,11 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+credit-risk = [
+    { name = "duckdb" },
+    { name = "pandas" },
+    { name = "scipy" },
+]
 dev = [
     { name = "pre-commit" },
     { name = "pytest" },
@@ -174,15 +179,18 @@ product-analytics = [
 
 [package.metadata]
 requires-dist = [
+    { name = "duckdb", marker = "extra == 'credit-risk'", specifier = ">=1.1" },
     { name = "duckdb", marker = "extra == 'product-analytics'", specifier = ">=1.1" },
     { name = "numpy", specifier = ">=2.0" },
+    { name = "pandas", marker = "extra == 'credit-risk'", specifier = ">=2.2" },
     { name = "pandas", marker = "extra == 'product-analytics'", specifier = ">=2.2" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.7" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
+    { name = "scipy", marker = "extra == 'credit-risk'", specifier = ">=1.14" },
     { name = "scipy", marker = "extra == 'product-analytics'", specifier = ">=1.14" },
 ]
-provides-extras = ["dev", "product-analytics"]
+provides-extras = ["dev", "product-analytics", "credit-risk"]
 
 [[package]]
 name = "pre-commit"
