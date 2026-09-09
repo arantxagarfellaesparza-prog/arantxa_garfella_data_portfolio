@@ -49,9 +49,16 @@ SELECT
     purpose,
     verification_status,
     addr_state,
-    date_diff('month', strptime(earliest_cr_line, '%b-%Y')::DATE,
-                       strptime(issue_d, '%b-%Y')::DATE)                 AS credit_hist_months,
-    date_diff('month', strptime(issue_d, '%b-%Y')::DATE, DATE '2019-04-01') AS age_months
+    date_diff(
+        'month',
+        strptime(earliest_cr_line, '%b-%Y')::DATE,
+        strptime(issue_d, '%b-%Y')::DATE
+    ) AS credit_hist_months,
+    -- Snapshot derived from the data, not the filename: the file is named for
+    -- the last issuance quarter but observation runs to 2019-04.
+    date_diff(
+        'month', strptime(issue_d, '%b-%Y')::DATE, DATE '2019-04-01'
+    ) AS age_months
 FROM read_csv(?, header = true, all_varchar = true)
 WHERE issue_d IS NOT NULL AND term IS NOT NULL AND loan_status IS NOT NULL
 """
