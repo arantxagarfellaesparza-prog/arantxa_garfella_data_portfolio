@@ -64,10 +64,23 @@ WHERE issue_d IS NOT NULL AND term IS NOT NULL AND loan_status IS NOT NULL
 """
 
 
+class SourceMissing(FileNotFoundError):
+    """The Lending Club extract is not on disk. It is not in the repository by
+    design -- 374MB of source data does not belong in Git history."""
+
+
 def build(force: bool = False) -> Path:
     """Create the local database if it is not already there."""
     if DB.exists() and not force:
         return DB
+    if not ACCEPTED.exists():
+        raise SourceMissing(
+            f"{ACCEPTED} not found.\n"
+            "Download wordsforthewise/lending-club from Kaggle into "
+            "projects/02-credit-risk/data/raw/ and do not decompress it: "
+            "DuckDB reads .csv.gz directly.\n"
+            "See projects/02-credit-risk/data/README.md."
+        )
     DB.parent.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect(str(DB))
     con.execute(BUILD, [str(ACCEPTED)])

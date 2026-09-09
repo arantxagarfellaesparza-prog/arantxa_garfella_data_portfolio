@@ -20,7 +20,7 @@ automate and ship.
 | # | Project | Question it answers | Core skills | Status |
 |---|---------|--------------------|-------------|--------|
 | 01 | [Product Analytics & Experimentation](projects/01-product-analytics) | Can the data distinguish a broken checkout from a retention problem — and can we trust an experiment that says we fixed it? | SQL (window functions, cohorts, sessionization), data-quality auditing, A/B validity & power | **Complete** |
-| 02 | Credit Risk Modelling | Can we estimate probability of default with probabilities calibrated well enough to make risk decisions? | Feature engineering, logistic regression → boosting, PR-AUC / KS / Brier, calibration, SHAP | Not started |
+| 02 | [Credit Risk Prediction Engine](projects/02-credit-risk) | Can historical origination-time data predict lifetime charge-off risk for future loans, with probabilities that stay calibrated as populations and policy drift? | Target/leakage auditing, temporal validation, calibration vs discrimination, point-in-time macro | **M0 — audit** |
 | 03 | Revenue Forecasting Under Uncertainty | What revenue can we expect next, and how wide is the honest uncertainty band? | Time-series validation, ETS/ARIMA, walk-forward backtesting, prediction intervals, scenarios | Not started |
 | 04 | Production ML | How does a notebook model become a system that can be retrained, tested, versioned and served? | Package structure, pytest, MLflow, FastAPI, Docker, CI, drift monitoring | Not started |
 | 05 | AI Data Analyst Agent | Can an agent turn business questions into *reliable* SQL — and how would we prove it? | LLM tool calling, SQL guardrails, golden eval set, execution accuracy, failure taxonomy | Not started |
@@ -28,7 +28,7 @@ automate and ship.
 Status is updated when a project is genuinely finished, which here means its
 README is a case study and I can defend it without notes — not when the code runs.
 
-📍 **Currently:** Project 01 complete. Next: Credit Risk Modelling. See [docs/roadmap.md](docs/roadmap.md).
+📍 **Currently:** Project 01 complete. Project 02 in M0 — data and population audit, no model trained yet. See [docs/roadmap.md](docs/roadmap.md).
 
 ---
 

@@ -180,3 +180,80 @@ The maturity buffer belongs to the construction of the historical development
 sample. It is not a condition a new application has to satisfy.
 
 Still prohibited: calling this a Basel one-year PD, a TTC PD, or a regulatory PD.
+
+---
+
+## 003 — Provisional modelling population (M0 not yet closed)
+
+**Date:** 2026-09-09
+
+Evidence for everything below is in [DATA_AUDIT.md](DATA_AUDIT.md).
+
+### Decided
+
+**Primary population: 36-month loans only.** Sixty-month loans add 8.7% more
+sample at nearly double the default rate, five points more interest, twice the
+median amount and no exposure to 2007–2009. Scope first, breadth later: build a
+risk engine that is well understood for one homogeneous product before asking
+whether a second one shares its parameters. Whether 60-month loans can join the
+same model or need their own calibration is a later question, not a cheaper way
+to more rows now.
+
+**Off-policy loans excluded from the primary population**, retained as a
+sensitivity cohort. They default at roughly twice the rate and concentrate in the
+early vintages, so leaving them in would let a population Lending Club stopped
+approving contaminate every temporal comparison.
+
+**Exclusion rule.** An observation is excluded when it has no interpretable
+terminal outcome, belongs to a product outside the primary scope, was generated
+under a different policy, or lacks a field essential to defining target or
+maturity. Nothing is excluded merely because an event occurred: hardship and
+settlement loans were checked rather than assumed, and neither needs a dedicated
+rule — settlement is coded correctly as `Charged Off`, and hardship loans are
+45% unresolved so the maturity filter already removes them.
+
+This is separate from feature exclusion and leakage, which is M2.
+
+**Target wording.** `Charged Off` → 1, `Fully Paid` → 0, over the contractual
+life, on sufficiently mature 36-month policy-compliant cohorts.
+
+A prediction of 0.18 means: for a new 36-month loan inside the domain of
+applicability represented by the accepted, policy-compliant historical loans used
+to develop the model, an estimated 18% probability of ending in `Charged Off`
+over its contractual life. The maturity buffer is a property of how the
+development sample was built, not a condition a new application must meet.
+
+**Not** a Basel one-year PD, a TTC PD, or a regulatory PD.
+
+**M6 stays alive, with a strictly predictive claim.** Does macroeconomic
+information available at origination add incremental predictive value for future
+loans as conditions change? Not a causal estimate of what a recession caused, and
+not a claim of validation against a future recession. 2008–2009 is training-set
+information about a stress regime and a sensitivity diagnostic, not independent
+evidence of generalisation.
+
+Evaluation is walk-forward on expanding windows, past to next unseen vintage,
+comparing application-only against application plus an extrapolable smooth time
+component against application plus point-in-time macro. Vintage dummies stay an
+in-sample ceiling: they cannot extrapolate to an unseen vintage, so they diagnose
+rather than compete.
+
+### Open — M0 does not close until this is settled
+
+**The maturity cutoff.** The sensitivity analysis removed the argument that was
+going to justify it. Population-level censoring bias is 0.27% relative even at
++2, the measured rate drift across cutoffs is vintage composition rather than
+bias correction, marginal sample loss is flat at 4–5% per month so there is no
+knee, and the M0 finding is invariant: the standardised 2008-minus-2013 gap is
+4.49–4.50 at every cutoff from +2 to +8.
+
+What remains in play is 53,014 loans and the 2016 vintage — the most recent
+out-of-time test data available — against 0.13 points of relative bias.
+
+### Known limitation carried forward
+
+The crisis elevation is real and survives adjustment, but it lives in 6,278 loans
+(1.07% of the population), and after 2010 there is no trend left to explain —
+only a ~2-point year-to-year oscillation. Walk-forward validation makes that
+conflict explicit rather than resolving it: with an expanding window the crisis
+falls into training in almost every fold.
