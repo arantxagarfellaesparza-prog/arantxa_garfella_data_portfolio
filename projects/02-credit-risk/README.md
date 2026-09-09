@@ -6,9 +6,9 @@
 
 Lending Club accepted loans, 2007–2018Q4 · IRB-informed, not regulatory
 
-**Project status: M0 closed — data, target and modelling-population viability
-audit.** Next: M1 target construction and M2 feature availability. No model has
-been trained.
+**Project status: M1 closed — development population and target built and
+asserted.** Next: M2 feature availability and leakage audit. No model has been
+trained and no features have been selected.
 
 ---
 
@@ -83,10 +83,12 @@ Full evidence in **[DATA_AUDIT.md](DATA_AUDIT.md)**. The headlines:
   ranking while its level meaning moved. A pooled `grade → PD` mapping is not a
   stable yardstick.
 
-### Modelling population, frozen
+### Development population
 
-641,406 policy-compliant 36-month loans with 89,188 charge-offs, originated
-2007-06 to 2016-01, at a maturity cutoff of +3 months past contractual term.
+**641,116 loans · 89,188 charge-offs · 13.91% event rate · originated 2007-06 to
+2016-01.** Policy-compliant 36-month loans, at least three months past
+contractual term, with a terminal outcome. The filter waterfall and the
+per-vintage profile are in [DATA_AUDIT.md](DATA_AUDIT.md).
 Sixty-month loans and off-policy loans are excluded from development; off-policy
 is retained as a sensitivity cohort.
 

@@ -230,7 +230,86 @@ and no reject-inference method is attempted.
 
 ---
 
-## Carried into M1 and beyond
+---
+
+# M1 — development population and target
+
+Built by `src/development_population.py`, asserted by
+`tests/test_development_population.py`. It defines **rows and `y` only**: feature
+selection is M2, and the module deliberately carries no candidate predictors so a
+convenience subset cannot be mistaken for a decision that has not been made.
+
+## Filter waterfall
+
+| step | reason | in | out | dropped |
+|---|---|---:|---:|---:|
+| raw | accepted loans as materialised from source | 2,260,668 | 2,260,668 | 0 |
+| parseable | issue date, term and status must exist | 2,260,668 | 2,260,668 | 0 |
+| term_36m | 60-month loans are a different product | 2,260,668 | 1,609,754 | 650,914 |
+| policy_compliant | off-policy default at twice the rate | 1,609,754 | 1,607,316 | 2,438 |
+| mature | ≥3 months past contractual term | 1,607,316 | 641,406 | 965,910 |
+| terminal_outcome | only Charged Off and Fully Paid map to `y` | 641,406 | **641,116** | 290 |
+
+## The population
+
+```
+N               641,116
+bads             89,188   (Charged Off = 1)
+goods           551,928   (Fully Paid  = 0)
+event rate       13.9114%
+originated      2007-06 to 2016-01
+fingerprint     fa9fa5f22eac50b1c7245f9be75b3972
+```
+
+The fingerprint is an order-independent hash of `(loan_id, target)`. A check that
+fails when a query adds an `ORDER BY` gets ignored, and an ignored check is worse
+than none.
+
+## By vintage — the population is not one population
+
+| vintage | N | bads | event rate | months covered |
+|---|---:|---:|---:|---:|
+| 2007 | 251 | 45 | 17.93% | 7 |
+| 2008 | 1,562 | 247 | 15.81% | 12 |
+| 2009 | 4,716 | 594 | 12.60% | 12 |
+| 2010 | 8,466 | 842 | 9.95% | 12 |
+| 2011 | 14,101 | 1,499 | 10.63% | 12 |
+| 2012 | 43,470 | 5,903 | 13.58% | 12 |
+| 2013 | 100,422 | 12,378 | 12.33% | 12 |
+| 2014 | 162,570 | 22,315 | 13.73% | 12 |
+| 2015 | 283,026 | 42,132 | 14.89% | 12 |
+| 2016 | 22,532 | 3,233 | 14.35% | **1** |
+
+Kept per vintage rather than collapsed to one aggregate profile, because two
+different claims will later be made and they are not the same:
+
+- **Historical development support** — where training data exists at all, the
+  union of 2007–2016.
+- **Operational applicability** — how close a new application sits to the
+  *temporally relevant* population. Assessed against a recent reference window,
+  not the pooled distribution, which would lend apparent support to regions that
+  only existed in old vintages.
+
+The recent window is deliberately not fixed here; it belongs to temporal
+validation and monitoring. What M1 owes it is the loan-level lineage to make the
+statement checkable later rather than decorative.
+
+2016 is one month — January — which is what the +3 cutoff admits.
+
+## What the assertions check
+
+Eleven tests. Ten run against a nine-row synthetic table where every filter case
+is countable by hand; one checks the real population against the recorded
+figures above and skips when the source file is absent.
+
+The target mapping is tested **in both directions**: `y ∈ {0,1}` would pass even
+if every status mapped to 1. The cutoff is tested as inclusive at the boundary —
+off-by-one there would shift the population by a whole vintage. The lineage is
+tested for continuity, so no row can vanish between steps unrecorded.
+
+---
+
+## Carried into M2 and beyond
 
 **Macro viability is the weakest part of the plan, and is documented as such.**
 The crisis elevation is real and survives adjustment, but it sits in 6,278 loans

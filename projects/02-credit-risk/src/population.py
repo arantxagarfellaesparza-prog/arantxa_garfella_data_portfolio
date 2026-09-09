@@ -20,12 +20,14 @@ DATA = Path(__file__).parents[1] / "data"
 ACCEPTED = DATA / "raw" / "accepted_2007_to_2018Q4.csv.gz"
 DB = DATA / "interim" / "lc.duckdb"
 
-# Origination-time candidates only. Post-origination fields (payments,
-# recoveries, hardship, settlement) are deliberately absent: they belong to the
-# M2 leakage table, not to a working population.
+# The column list here served the M0 audit and is NOT a feature selection. M1
+# builds the modelling population from loan_id, date, term and status alone, and
+# M2 audits all 151 raw columns against the source file. Nothing downstream
+# should treat this subset as "the features": that decision has not been made.
 BUILD = """
 CREATE OR REPLACE TABLE loans AS
 SELECT
+    id                                                                   AS loan_id,
     strptime(issue_d, '%b-%Y')::DATE                                     AS issue_date,
     CASE WHEN term LIKE '%36%' THEN 36 WHEN term LIKE '%60%' THEN 60 END AS term_months,
     loan_status LIKE 'Does not meet%'                                    AS off_policy,
