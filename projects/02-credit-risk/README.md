@@ -106,10 +106,9 @@ be a finding, not a failure.
 
 ### Out of scope
 
-Cash-flow underwriting, financial networks, household and legal context,
-cross-border evidence, country adapters, age and gender fairness analysis, and
-any AI agent. The data required to validate those layers is not in this project,
-and architecture without evidence is not a result.
+Broader underwriting and product-layer extensions are intentionally outside the
+scope of this project. What is published here is what this project builds, tests
+and can support with evidence — architecture without evidence is not a result.
 
 ---
 

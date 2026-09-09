@@ -93,6 +93,14 @@ repository — a tool with no entry there does not belong.
 Personal working notes are deliberately not published. This repository contains
 finished reasoning, not a study diary.
 
+**What gets published.** Only what a project actually builds, tests and can
+support with evidence. Planned extensions, product direction and unvalidated
+architecture stay out — not because they are secret, but because a repository
+that describes layers it never built invites the reader to ask what was actually
+done, and answers worse than one that simply shows the work. A scope note may say
+that broader extensions are deliberately out of scope; it does not enumerate
+them.
+
 ---
 
 ## 6. Hard rules
