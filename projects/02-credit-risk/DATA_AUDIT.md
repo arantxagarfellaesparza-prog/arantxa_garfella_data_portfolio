@@ -1,8 +1,8 @@
 # Data audit — M0
 
 Findings from the data, target and modelling-population viability audit.
-**M0 is not closed:** the maturity cutoff is still pending the sensitivity
-analysis below.
+**M0 is closed.** The maturity cutoff is frozen at +3 months past contractual
+term (DECISIONS 004); the sensitivity analysis behind that choice is in §3.
 
 Source: `bigquery`-free — Lending Club accepted and rejected loans, 2007 to
 2018Q4, from the public Kaggle mirror. 2,260,668 accepted loans, 151 columns.
@@ -94,8 +94,10 @@ stricter cutoffs drop recent vintages, which default more. Reading that column a
 a bias correction would invert the interpretation.
 
 Marginal sample loss is flat at 4–5% per month, so there is no knee to find.
-**Open: the cutoff is not frozen.** +3 and +5 are the candidates; +3 retains the
-2016 vintage, which matters as out-of-time test data.
+
+**Frozen at +3** (DECISIONS 004): 641,406 loans, 89,188 charge-offs, originated
+2007-06 to 2016-01. Moving to +5 would drop 53,014 loans — two months, 2015-12
+and 2016-01 — to remove 0.13 points of a bias already at 0.15%.
 
 ## 4. Population composition
 
@@ -228,12 +230,12 @@ and no reject-inference method is attempted.
 
 ---
 
-## Open before M0 can close
+## Carried into M1 and beyond
 
-1. **Maturity cutoff** — +3 or +5, pending the trade between 53,014 loans plus
-   the 2016 vintage and 0.13 points of relative bias.
-2. **Macro viability** — the crisis elevation is real but sits in 6,278 loans,
-   1.07% of the population, and after 2010 there is no trend left to explain,
-   only a ~2-point year-to-year oscillation. Walk-forward validation makes the
-   conflict explicit rather than solving it: the crisis falls into training in
-   almost every window.
+**Macro viability is the weakest part of the plan, and is documented as such.**
+The crisis elevation is real and survives adjustment, but it sits in 6,278 loans
+— 1.07% of the population — and after 2010 there is no trend left to explain,
+only a ~2-point year-to-year oscillation. Walk-forward validation makes that
+conflict explicit rather than solving it: with an expanding window the crisis
+falls into training in almost every fold. M6 proceeds as a predictive test, and
+a null result would be a legitimate finding rather than a failure.

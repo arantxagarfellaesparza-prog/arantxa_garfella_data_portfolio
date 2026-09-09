@@ -257,3 +257,68 @@ The crisis elevation is real and survives adjustment, but it lives in 6,278 loan
 only a ~2-point year-to-year oscillation. Walk-forward validation makes that
 conflict explicit rather than resolving it: with an expanding window the crisis
 falls into training in almost every fold.
+
+---
+
+## 004 — Maturity cutoff frozen at +3; M0 closes
+
+**Date:** 2026-09-09
+
+### Decision
+
+**Maturity cutoff: +3 months past contractual term.** Primary modelling
+population is 641,406 policy-compliant 36-month loans with 89,188 charge-offs,
+originated 2007-06 to 2016-01.
+
+### Reason
+
+The sensitivity analysis removed the argument that had been expected to justify
+a stricter cutoff, so the decision rests on a different one than the hypothesis
+it started from.
+
+| | +3 | +5 |
+|---|---:|---:|
+| terminal resolution | 99.955% | 99.992% |
+| worst-case relative bias | 0.15% | 0.02% |
+| N | 641,406 | 588,392 |
+| last origination | 2016-01 | 2015-11 |
+
+There is no population-level knee to find: marginal sample loss is flat at 4–5%
+per month of cutoff, and censoring bias is already 0.27% relative at the loosest
+cutoff tested. The substantive M0 findings are invariant — the standardised
+2008-minus-2013 gap holds at 4.49–4.50 points from +2 through +8 — so the cutoff
+does not decide any conclusion this project draws.
+
+What remains is a trade between label quality and sample information, and 53,014
+loans (8.3% of the population) is worth more than 0.13 points of a bias that is
+already negligible.
+
+**A correction to the reasoning as first stated.** Moving from +5 to +3 does not
+buy "a full 2016 vintage". It buys **two months** — 2015-12 (30,339 loans) and
+2016-01 (22,675) — extending the last observable origination from 2015-11 to
+2016-01. The sample-size argument is unaffected; the vintage-coverage argument is
+smaller than it sounded, and the entry records the checked figure rather than the
+first framing.
+
+### Trade-off accepted
+
+The marginal cohort admitted at +3 is the least resolved in the population, and
+its unresolved residue is disproportionately `Late` rather than healthy
+`Current`. Bounded at 0.15% relative, and reported wherever the default rate is.
+
+### M0 closes
+
+Frozen, with evidence in [DATA_AUDIT.md](DATA_AUDIT.md):
+
+| | |
+|---|---|
+| Primary population | Policy-compliant 36-month loans, +3 months past term |
+| 60-month loans | Excluded from the primary model |
+| Off-policy loans | Out of development, retained as a sensitivity cohort |
+| Hardship / settlement | No dedicated exclusion — checked, not assumed |
+| Target | Lifetime charge-off probability for a new 36-month loan inside the domain of applicability represented by the development population |
+| Not | A Basel one-year PD, a TTC PD, or a regulatory PD |
+| M6 | Alive as a test of the incremental predictive value of point-in-time macro, evaluated walk-forward. Not a causal claim, and not validation against a future recession |
+
+Next: M1 target construction and M2 feature availability, with the framing
+unchanged — predictive risk engine first, rigorous validation around it.

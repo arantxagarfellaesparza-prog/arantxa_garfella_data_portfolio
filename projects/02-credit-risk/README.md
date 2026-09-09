@@ -6,8 +6,9 @@
 
 Lending Club accepted loans, 2007–2018Q4 · IRB-informed, not regulatory
 
-**Project status: M0 — data, target and modelling-population viability audit.**
-No model has been trained. M0 is not closed: the maturity cutoff is still open.
+**Project status: M0 closed — data, target and modelling-population viability
+audit.** Next: M1 target construction and M2 feature availability. No model has
+been trained.
 
 ---
 
@@ -82,15 +83,26 @@ Full evidence in **[DATA_AUDIT.md](DATA_AUDIT.md)**. The headlines:
   ranking while its level meaning moved. A pooled `grade → PD` mapping is not a
   stable yardstick.
 
-### Still open
+### Modelling population, frozen
 
-- The **maturity cutoff** (+3 or +5): 53,014 loans and the 2016 vintage against
-  0.13 points of relative bias.
-- **Macro viability.** The crisis elevation is real but sits in 1.07% of the
-  population, and after 2010 there is no trend left to explain. M6 remains a
-  strictly predictive question — does origination-time macro improve out-of-time
-  prediction — evaluated walk-forward on expanding windows, never as a causal
-  claim about recessions.
+641,406 policy-compliant 36-month loans with 89,188 charge-offs, originated
+2007-06 to 2016-01, at a maturity cutoff of +3 months past contractual term.
+Sixty-month loans and off-policy loans are excluded from development; off-policy
+is retained as a sensitivity cohort.
+
+The cutoff was chosen on a trade the sensitivity analysis reframed rather than on
+the elbow that was expected: there is no population-level knee, censoring bias is
+already 0.15% relative at +3, and every M0 conclusion is invariant across
+cutoffs.
+
+### Carried forward
+
+**Macro viability is the weakest part of the plan.** The crisis elevation
+survives adjustment but sits in 1.07% of the population, and after 2010 there is
+no trend left to explain. M6 proceeds as a strictly predictive question — does
+origination-time macro improve out-of-time prediction — evaluated walk-forward on
+expanding windows, never as a causal claim about recessions. A null result would
+be a finding, not a failure.
 
 ### Out of scope
 
