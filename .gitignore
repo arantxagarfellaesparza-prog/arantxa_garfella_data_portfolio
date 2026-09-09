@@ -16,6 +16,20 @@ LEARNING_LOG.md
 credentials.json
 
 # --- Data ------------------------------------------------------------------
+# `data/**` below is ANCHORED to the repo root because it contains a slash, so it
+# never covered projects/*/data/. Project 01 was saved by the *.csv rule; a
+# .csv.gz slipped straight past both and was only stopped by GitHub's 100MB
+# limit. Compressed and columnar extensions are listed explicitly, and the
+# unanchored **/data/** covers every project.
+**/data/**
+!**/data/README.md
+!**/data/**/*.sha256
+*.gz
+*.zip
+*.bz2
+*.xz
+*.7z
+
 # Data is reproduced by scripts, not stored in Git. Git is bad at large binary
 # blobs (every version is kept forever) and a public repo is the wrong place
 # for a dataset whose licence I have not personally checked.

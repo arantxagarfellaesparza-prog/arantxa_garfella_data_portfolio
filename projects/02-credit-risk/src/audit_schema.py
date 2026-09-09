@@ -39,9 +39,12 @@ def sample_values(
     path: Path, column: str, con: duckdb.DuckDBPyConnection, limit: int = 8
 ) -> list[str]:
     """Distinct raw values, as text. Never parsed here."""
+    # Identifiers are quoted: the rejected file has column names with spaces
+    # ("Application Date"), which parse as two tokens otherwise.
+    quoted = '"' + column.replace('"', '""') + '"'
     rows = con.execute(
-        f"SELECT DISTINCT CAST({column} AS VARCHAR) FROM read_csv_auto("
-        f"'{path}', sample_size = 20000) WHERE {column} IS NOT NULL LIMIT {limit}"
+        f"SELECT DISTINCT CAST({quoted} AS VARCHAR) FROM read_csv_auto("
+        f"'{path}', sample_size = 20000) WHERE {quoted} IS NOT NULL LIMIT {limit}"
     ).fetchall()
     return [r[0] for r in rows]
 

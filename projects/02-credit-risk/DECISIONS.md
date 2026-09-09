@@ -130,3 +130,53 @@ their own decision rather than being swept in.
 - Whether enough sample and enough defaults survive the maturity filter.
 - Whether enough defaults come from 2007-2010 for the macro question to exist.
 - Whether 36- and 60-month loans can share a population or need separating.
+
+---
+
+## 002 — The predictive model is the project; validation is the quality layer
+
+**Date:** 2026-09-09
+
+### Change
+
+Decision 001 framed this as a model-validation case study with a challenger
+attached. That hierarchy is inverted. The project builds a **credit-risk
+prediction model**, and validation is what establishes whether its probabilities
+can be trusted — not an end in itself.
+
+**Primary question.** Can historical origination-time data build a calibrated
+model that predicts lifetime charge-off risk for future 36-month Lending
+Club-like loans?
+
+**Secondary.** Does it out-rank Lending Club's historical grade? Does
+origination-time macro information improve prediction on future vintages? How
+stable is it as borrower populations, policy and conditions change?
+
+Nothing methodological is dropped. The same artefacts get built in the same
+order; what changes is which number leads and how the work is narrated.
+
+### Two consequences that are not merely presentational
+
+**The accepted-only limitation is promoted, not demoted.** Under a validation
+framing, "we only observe accepted loans" was a note about representativeness.
+Under a predictive framing — *estimate the risk of a new application* — it
+becomes a **condition of applicability**: the model predicts for applicants
+Lending Club would have accepted. Applied to one it would have rejected, it
+extrapolates. That belongs in the model card as scope, not as a caveat.
+
+**The leakage test gets sharper.** "Would the lender have known this at
+origination?" invites argument. The product framing supplies a better one:
+**would this field be present in the API request for a new application?** It is
+harder to rationalise around, and it is the test M2 will use.
+
+### What the output means
+
+A prediction of 0.18 means: for a new 36-month loan inside the domain of
+applicability represented by the accepted, policy-compliant historical loans used
+to develop the model, an estimated 18% probability of ending in `Charged Off`
+over its contractual life.
+
+The maturity buffer belongs to the construction of the historical development
+sample. It is not a condition a new application has to satisfy.
+
+Still prohibited: calling this a Basel one-year PD, a TTC PD, or a regulatory PD.
